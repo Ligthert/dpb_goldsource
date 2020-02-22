@@ -35,32 +35,32 @@
 #endif
 // Prevent tons of unused windows definitions
 #ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#define NOWINRES
-#define NOSERVICE
-#define NOMCX
-#define NOIME
-#include <windows.h>
-#include <math.h>
+ #define WIN32_LEAN_AND_MEAN
+ #define NOWINRES
+ #define NOSERVICE
+ #define NOMCX
+ #define NOIME
+ #include <windows.h>
+ #include <math.h>
 #else // _WIN32
-#define FALSE 0
-#define TRUE 1
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-typedef unsigned long ULONG;
-typedef unsigned char BYTE;
-typedef int BOOL;
-#define MAX_PATH PATH_MAX
-#include <limits.h>
-#include <stdarg.h>
-#ifndef min
-#define min(a,b)  (((a) < (b)) ? (a) : (b))
-#endif
-#ifndef max
-#define max(a,b)  (((a) > (b)) ? (a) : (b))
+ #define FALSE 0
+ #define TRUE 1
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <math.h>
+ typedef unsigned long ULONG;
+ typedef unsigned char BYTE;
+ typedef int BOOL;
+ #define MAX_PATH PATH_MAX
+ #include <limits.h>
+ #include <stdarg.h>
+ #ifndef min
+  #define min(a,b)  (((a) < (b)) ? (a) : (b))
+ #endif
+ #ifndef max
+  #define max(a,b)  (((a) > (b)) ? (a) : (b))
+ #endif
 #define _vsnprintf(a,b,c,d) vsnprintf(a,b,c,d)
-#endif
 #endif //_WIN32
 
 // Misc C-runtime library headers

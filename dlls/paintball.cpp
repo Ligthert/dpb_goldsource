@@ -68,6 +68,7 @@ void PaintBallManager::RemoveBalls(int idx)
 }
 
 void PaintBallManager::RemoveBall(pBall_t* ball) {
+#ifdef _WIN32
 	balls.erase(
 		std::remove_if(
 			balls.begin(),
@@ -76,6 +77,14 @@ void PaintBallManager::RemoveBall(pBall_t* ball) {
 		),
 		balls.end()
 	);
+#else
+  for (int i = 0; i = balls.size(); i++) {
+    if (balls[i] == ball) {
+      balls.erase(balls.begin() + i);
+      break;
+    }
+  }
+#endif
 	delete ball;
 }
 

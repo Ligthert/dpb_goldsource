@@ -473,15 +473,25 @@ int ReloadMapCycleFile( char *filename, mapcycle_t *cycle )
 					if ( s && s[0] )
 					{
 						item->minplayers = atoi( s );
-						item->minplayers = max( item->minplayers, 0 );
+#ifdef _WIN32
+						item->minplayers = max( item->minplayers, 0 ); // Why?
 						item->minplayers = min( item->minplayers, gpGlobals->maxClients );
+#else
+            item->minplayers = std::max( item->minplayers, 0 ); // Why?
+            item->minplayers = std::min( item->minplayers, gpGlobals->maxClients );
+#endif
 					}
 					s = g_engfuncs.pfnInfoKeyValue( szBuffer, "maxplayers" );
 					if ( s && s[0] )
 					{
 						item->maxplayers = atoi( s );
-						item->maxplayers = max( item->maxplayers, 0 );
+#ifdef __WIN32
+						item->maxplayers = max( item->maxplayers, 0 ); // Why?
 						item->maxplayers = min( item->maxplayers, gpGlobals->maxClients );
+#else
+            item->maxplayers = std::max( item->maxplayers, 0 ); // Why?
+            item->maxplayers = std::min( item->maxplayers, gpGlobals->maxClients );
+#endif
 					}
 
 					// Remove keys

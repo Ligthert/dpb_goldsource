@@ -11,6 +11,8 @@
 #include "util.h"
 #include "cbase.h"
 #include "player.h"
+
+// Why?
 #define vsnprintf _vsnprintf
 
 
@@ -72,9 +74,11 @@ static void VoiceServerDebug( char const *pFmt, ... )
 	if( !voice_serverdebug.value )
 		return;
 
+  #ifdef _WIN32
 	va_start( marker, pFmt );
 	vsnprintf( msg, sizeof(msg), pFmt, marker );
 	va_end( marker );
+  #endif
 
 	ALERT( at_console, "%s", msg );
 }
