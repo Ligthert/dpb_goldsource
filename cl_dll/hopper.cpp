@@ -89,12 +89,16 @@ int CHudHopper::Draw(float flTime)
 	wrect_t area;
 	if (( gHUD.m_iHideHUDDisplay & ( HIDEHUD_ALL )) || (gViewPort && !gViewPort->AllowedToPrintText())||g_iUser1)
 		return 1;
+
+	
 	area.top=0;
 	area.left=0;
 	area.bottom=32;
 	area.right=32;
+
 	SPR_Set(crosshair,166,166,166);
-	SPR_DrawAdditive(0,(ScreenWidth/2)-16,(ScreenHeight/2)-16,&area);
+	
+	SPR_DrawAdditive(0,((ScreenWidth/2)-16) + (gHUD.curx * gHUD.curmul),((ScreenHeight/2)-16) + (gHUD.cury * gHUD.curmul), &area);
 
 	SPR_Set(hopper,255,255,255);
 	SPR_DrawHoles(0,0,-1,&bg);

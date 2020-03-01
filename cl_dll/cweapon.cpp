@@ -45,7 +45,7 @@ void ClientWeapon::DefReload(int aidle,int abegin)
 		m_bSecondaryAttack=0;
 		SetAnim(aidle);
 	}
-	else if(m_iReload==1)
+	else if(m_iReload == 1 && m_flReload <= 0.0)
 	{
 		m_iReload=2;
 		m_flReload=10.0f;
@@ -58,32 +58,17 @@ void ClientWeapon::DefReload(int aidle,int abegin)
 	}
 }
 #define W_CPS (((1.0f/(l_currAttack-l_lastAttack))+(1.0f/(l_lastAttack-l_prevAttack)))/2)
+
 void ClientWeapon::Frame(double dt)
 {
-	if(g_Buttons & IN_DASH&&!m_bGunDown) {
-		SetAnim(SEMI_HOLSTER);
-		m_bGunDown=1;
-	} else if(m_bGunDown && !(g_Buttons&IN_DASH)) {
-		SetAnim(SEMI_DEPLOY);
-		m_bGunDown=0;
-		m_flReload=m_flPrimaryAttack=m_flSecondaryAttack=m_flIdle=1.0;
-	}
 	if((g_Buttons & IN_RELOAD) && m_flReload<=0 && gHUD.m_Hopper.m_iHopper<200 && gHUD.m_Hopper.m_iTube )
 		Reload();
-	else if(gHUD.m_Timer.m_RoundState&&(g_Buttons & IN_ATTACK ) && (!(g_Buttons&IN_RELOAD)) && m_flPrimaryAttack<=0  && m_bPrimaryAttack && gHUD.m_Hopper.m_iHopper>0)
+	else if(gHUD.m_Timer.m_RoundState && (g_Buttons & IN_ATTACK ) && (!(g_Buttons&IN_RELOAD)) && m_flPrimaryAttack <= 0  && m_bPrimaryAttack && gHUD.m_Hopper.m_iHopper>0)
 	{
 		l_prevAttack=l_lastAttack;
 		l_lastAttack=l_currAttack; 
 		l_currAttack=gEngfuncs.GetClientTime();
 		PrimaryAttack();
-		if (W_CPS>5)
-		{
-			float decAmmt = 0.01 * W_CPS;
-			if (decAmmt > 0.15)
-				decAmmt = 0.15;
-
-			m_flPrimaryAttack-=decAmmt;
-		}
 	}
 	else if(gHUD.m_Timer.m_RoundState&&(g_Buttons & IN_ATTACK2) && (!(g_Buttons&IN_RELOAD)) && m_flSecondaryAttack<=0 && m_bSecondaryAttack)
 		SecondaryAttack();
@@ -99,6 +84,7 @@ void ClientWeapon::Frame(double dt)
 	m_flSecondaryAttack-=dt;
 	m_flIdle-=dt;
 	m_flReload-=dt;
+	
 }
 void ClientWeapon::IdleHandleReload(int arld,int aend)
 {
@@ -123,6 +109,7 @@ void ClientWeapon::SetAnim(int anim)
 {
 	gEngfuncs.pfnWeaponAnim(anim,gHUD.m_Hopper.m_iBarrel);
 }
+
 extern int v_ground;
 extern float v_height;
 extern float v_speed;
@@ -131,6 +118,7 @@ void ClientWeapon::PaintballFire(float max)
 	float punch;
 	float f[3],r[3],u[3];
 	gEngfuncs.pfnAngleVectors(v_angles,f,r,u);
+
 	float sr,su;
 	DPB_Seed(g_Random);
 	lastshot=curshot;
@@ -151,16 +139,15 @@ void ClientWeapon::PaintballFire(float max)
 		max+=150.0f;
 
 	//END CALC SHIT
-	
-	sr=DPB_RandomFloat(-max,max)/1000.0;
-	su=DPB_RandomFloat(-max,max)/1000.0;
-	vecmul(r,sr);
-	vecmul(u,su);
-	vecadd(f,r);
-	vecadd(f,u);
-	UTIL_Normalize(f);
-	FirePaintball(v_origin,f,gEngfuncs.GetLocalPlayer()->index,gViewPort->m_pConfigMenu->m_Paint->m_iOption);
-	CL_PunchAxes(punch);
+	Vector newOrigin = v_origin;
+	Vector newForward = f;
+	vecmul(r, (gHUD.curx / gHUD.curdiv));
+	vecmul(u, (-gHUD.cury / gHUD.curdiv));
+	vecadd(newForward, r);
+	vecadd(newForward, u);
+	UTIL_Normalize(newForward);
+	FirePaintball( newOrigin , newForward, gEngfuncs.GetLocalPlayer()->index, gViewPort->m_pConfigMenu->m_Paint->m_iOption);
+	//CL_PunchAxes(punch);
 }
 void UTIL_Normalize(float *v)
 {

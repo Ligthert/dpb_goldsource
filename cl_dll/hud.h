@@ -583,6 +583,14 @@ public:
 	int		m_iFOV;
 	int		m_Teamplay;
 	int		m_iRes;
+	// Sway angles calculated in view.cpp
+	float     curx;
+	float     cury;
+	float     curmul;
+	float     curdiv;
+	float     curstep;
+	float     curspeed;
+	//
 	cvar_t  *m_pCvarStealMouse;
 	cvar_t	*m_pCvarDraw;
 

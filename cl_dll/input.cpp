@@ -534,12 +534,6 @@ void IN_AttackDown(void)
 	if (!g_bAttackOK) // kuja - real antiscripting
 		return;
 
-	l_prevAttack=l_lastAttack; // kuja - anti haxx0zring
-	l_lastAttack=l_currAttack; 
-	l_currAttack=gEngfuncs.GetClientTime();
-	gEngfuncs.Con_DPrintf("cps: %.1f\n",((1.0f/(l_currAttack-l_lastAttack))+(1.0f/(l_lastAttack-l_prevAttack)))/2);
-	if ((((1.0f/(l_currAttack-l_lastAttack))+(1.0f/(l_lastAttack-l_prevAttack)))/2)>22) // ahxxzoring
-		return;
 	KeyDown( &in_attack );
 	gHUD.m_Spectator.HandleButtonsDown( IN_ATTACK );
 }
@@ -820,7 +814,7 @@ void DLLEXPORT CL_CreateMove ( float frametime, struct usercmd_s *cmd, int activ
 	//
 	// set button and flag bits
 	//
-	if(g_iUser1||cmd->upmove||cmd->sidemove||cmd->forwardmove||g_iUser4&IN_PRONE|| (gViewPort && !gViewPort->AllowedToPrintText())||!v_ground)
+	if(g_iUser1||g_iUser4&IN_PRONE|| (gViewPort && !gViewPort->AllowedToPrintText())||!v_ground)
 		cmd->buttons &= ~(IN_LEANLEFT|IN_LEANRIGHT|IN_RELOAD);
 	if(cmd->buttons&IN_RELOAD)
     cmd->buttons &= ~(IN_LEANLEFT|IN_LEANRIGHT);
@@ -846,7 +840,7 @@ void DLLEXPORT CL_CreateMove ( float frametime, struct usercmd_s *cmd, int activ
 	if(GetClientVoiceMgr()->IsInSquelchMode())
 		cmd->buttons &= ~IN_ATTACK;
 	if(cmd->buttons&IN_DASH)
-		cmd->buttons&=~(IN_ATTACK|IN_ATTACK2|IN_RELOAD);
+		cmd->buttons&=~(IN_RELOAD);
 	
 //	if(/*(!g_iUser1)&&(*/!v_ground/*)*/)
 //		cmd->buttons&=~IN_DUCK;

@@ -180,6 +180,7 @@ void V_InterpolateAngles( float *start, float *end, float *output, float frac )
 // Quakeworld bob code, this fixes jitters in the mutliplayer since the clock (pparams->time) isn't quite linear
 float V_CalcBob ( struct ref_params_s *pparams )
 {
+	
 	static	double	bobtime;
 	static float	bob;
 	float	cycle;
@@ -215,9 +216,9 @@ float V_CalcBob ( struct ref_params_s *pparams )
 	vel[2] = 0;
 
 	bob = sqrt( vel[0] * vel[0] + vel[1] * vel[1] ) * cl_bob->value;
-	bob = bob * 0.3 + bob * 0.7 * sin(cycle);
-	bob = min( bob, 4 );
-	bob = max( bob, -7 );
+	bob = bob * 0.1 + bob * 0.3 * sin(cycle);
+	bob = min( bob, 1 );
+	bob = max( bob, -3 );
 	return bob;
 	
 }
@@ -354,10 +355,40 @@ void V_DriftPitch ( struct ref_params_s *pparams )
 
 /* 
 ============================================================================== 
-						VIEW RENDERING 
+						VIEW RENDERING pparams->onground
 ============================================================================== 
 */ 
+#include "cdll_int.h"
+extern float v_speed;
 
+
+
+void V_CalcDpbBob(struct ref_params_s* pparams) {
+	float time = gEngfuncs.GetClientTime();
+	gHUD.curspeed = ((100.0 - gHUD.m_Hopper.m_flStamina) / 100.0) + 1;
+	if (gHUD.curstep <= 0) {
+		gHUD.curdiv = 128.0;
+		gHUD.curmul = 8.0;
+		gHUD.curstep = 1.0;
+	}
+	if (v_speed < 20.0) {
+		gHUD.curdiv = 128.0;
+		gHUD.curmul = 8.0;
+		gHUD.curstep = 1.25;
+	}
+	else if (v_speed < 290 || (gEngfuncs.pEventAPI->EV_LocalPlayerDucking() && v_speed > 10)) {
+		gHUD.curdiv = 32.0;
+		gHUD.curmul = 32.0;
+		gHUD.curstep = 1.75;
+	}
+	else {
+		gHUD.curdiv = 8.0;
+		gHUD.curmul = 128.0;
+		gHUD.curstep = 4.0;
+	}
+	gHUD.curx = cos(double(time) * gHUD.curstep);
+	gHUD.cury = sin(double(time) * gHUD.curstep) * cos(double(time) * gHUD.curstep);
+}
 /*
 ==================
 V_CalcGunAngle
@@ -371,8 +402,12 @@ void V_CalcGunAngle ( struct ref_params_s *pparams )
 	if ( !viewent )
 		return;
 
-	viewent->angles[YAW]   =  pparams->viewangles[YAW]   + pparams->crosshairangle[YAW];
-	viewent->angles[PITCH] = -pparams->viewangles[PITCH] + pparams->crosshairangle[PITCH] * 0.25;
+	V_CalcDpbBob(pparams);
+	float time = gEngfuncs.GetClientTime();
+
+	viewent->angles[YAW] = (pparams->viewangles[YAW] + pparams->crosshairangle[YAW]) - (double(gHUD.curx) * gHUD.curstep);// *gHUD.curstep);
+	viewent->angles[PITCH] = (-pparams->viewangles[PITCH] + pparams->crosshairangle[PITCH] * 0.25) - (double(gHUD.cury)); // *(gHUD.curstep));
+
 /*	viewent->angles[ROLL]  -= v_idlescale * sin(pparams->time*v_iroll_cycle.value) * v_iroll_level.value;
 
 	// don't apply all of the v_ipitch to prevent normally unseen parts of viewmodel from coming into view.
